@@ -8,7 +8,7 @@ spec:
   selector:
     matchLabels:
       app: vprodb
-  replicas: 1
+  replicas: 0
   template:
     metadata:
       labels:
@@ -17,8 +17,6 @@ spec:
       containers:
         - name: vprodb
           image: akobtah14/vprofiledb:latest
-          args:
-            - "--ignore-db-dir=lost+found"
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: vpro-db-data
@@ -39,3 +37,10 @@ spec:
           awsElasticBlockStore:
             volumeID: vol-00736b5349d01976b
             fsType: ext4
+      initContainers:
+        - name: busybox
+          image: busybox:latest
+          args: ["rm", "-rf", /var/lib/mysql/lost+found]
+          volumeMounts:
+            - mountPath: vpro-db-data
+              name: /var/lib/mysql
